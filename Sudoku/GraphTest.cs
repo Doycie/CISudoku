@@ -57,7 +57,7 @@ namespace Sudoku
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.ClientSize = new System.Drawing.Size(284*4, 262);
             this.Controls.Add(this.chart1);
             this.Name = "GraphTest";
             this.Text = "Graph";
@@ -69,7 +69,7 @@ namespace Sudoku
         private void GraphTest_Load(object sender, EventArgs e)
         {
             Timer timer = new Timer();
-            timer.Interval = (1000);
+            timer.Interval = (10);
             timer.Tick += new EventHandler(timer1_Tick);
             timer.Start();
             update(q);
