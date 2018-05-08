@@ -132,21 +132,44 @@ namespace Sudoku
         private static int readBoard()
         {
             string[] input = Console.ReadLine().Split();
-            int N = input.Length-1;
+            int N = input.Length;
 
-            OriginalSudoku = new int[N, N];
-
-            for (int i = 0; i < N; i++)
+            if (input.Length == 1)
             {
-                for (int j = 0; j < N; j++)
+                N = input[0].Length;
+
+                OriginalSudoku = new int[N, N];
+                for(int i = 0; i < N; i++)
                 {
-                    int k = int.Parse(input[j]);
-                    OriginalSudoku[i, j] = k;
-                    
+                    for(int j = 0; j < N; j++)
+                    {
+                        int k = (int)(input[0][j]) - '0';
+                        OriginalSudoku[i, j] = k;
+                    }
+                    input = Console.ReadLine().Split();
                 }
-                input = Console.ReadLine().Split();
+
             }
-            return N;
+            else
+            {
+
+                if (input[input.Length - 1] == "")
+                    N = input.Length - 1;
+
+                OriginalSudoku = new int[N, N];
+
+                for (int i = 0; i < N; i++)
+                {
+                    for (int j = 0; j < N; j++)
+                    {
+                        int k = int.Parse(input[j]);
+                        OriginalSudoku[i, j] = k;
+
+                    }
+                    input = Console.ReadLine().Split();
+                }
+            }
+                return N;
         }
 
         private static void printResult(double[] results)
