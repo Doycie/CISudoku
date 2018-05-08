@@ -46,14 +46,13 @@ namespace Sudoku
             }
 
         }
-        public void solve(int rs)
+        public void solve(int rs, int walk)
         {
 
             //Fill in the remaining numbers randomly for each block
             fillInBoard();
-
             int score = Evaluation();
-            Random random = new Random(rs);
+            Random random = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
             int it = 0;
             int sameScore = 0;
 
@@ -85,7 +84,7 @@ namespace Sudoku
                 if (sameScore > 36)
                 {
                     sameScore = 0;
-                    int t = 20;
+                    int t = walk;
                     if (it > 2000)
                     {
                         it = 0;

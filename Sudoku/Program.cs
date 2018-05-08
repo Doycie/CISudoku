@@ -48,14 +48,14 @@ namespace Sudoku
            // t4.Start();
 
 
-            while (t.IsAlive
+            /*while (t.IsAlive
                 //&& t2.IsAlive && t3.IsAlive && t4.IsAlive
                 ) {
                 loading();
                 Thread.Sleep(1000);
 
 
-            }
+            }*/
 
             
 
@@ -97,20 +97,30 @@ namespace Sudoku
 
         private static void solve(int N, int i)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            SSudoku s = new SSudoku();
-            s.init(OriginalSudoku, N);
+            for (int k = 1; k < 21; k++)
+            {
+                double temp = 0;
+                for (int j = 0; j < 50; j++)
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+                    SSudoku s = new SSudoku();      //Deze constructor is voor als er geen graph is.
+                                                    //SSudoku s = new SSudoku(false, true, oldscores, thisLock);        //Deze constructor is voor als er wel een graph is.
+                    s.init(OriginalSudoku, N);
 
-           
 
-            s.solve(i);
 
-            sw.Stop();
+                    s.solve(i, 5*k);
 
-            Console.WriteLine("Solved in: " + sw.Elapsed.TotalSeconds + "s!");
-            s.print();
+                    sw.Stop();
 
+                    //Console.WriteLine("Solved in: " + sw.Elapsed.TotalSeconds + "s!");
+                    //s.print();
+                    temp += sw.Elapsed.TotalSeconds;
+                }
+                temp = temp / 100;
+                Console.WriteLine(5*k + " " + temp);
+            }
         }
 
         private static void OpenWindow()
@@ -137,6 +147,15 @@ namespace Sudoku
                 input = Console.ReadLine().Split();
             }
             return N;
+        }
+
+        private static void printResult(double[] results)
+        {
+            Console.WriteLine("Results:");
+            for(int k = 1; k < 11; k++)
+            {
+                Console.WriteLine(5*k + " " + results[k-1]);
+            }
         }
     }
 }
