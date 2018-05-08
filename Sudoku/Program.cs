@@ -8,12 +8,16 @@ namespace Sudoku
 {
     class Program
     {
+        //Lock object for the chart window to make sure the threads dont write to the queue at the same time
         static private Object thisLock = new Object();
 
+        //Queue for holding old scores in case we want to see the chart window
         private static Queue<int> oldscores;
 
+        //Enable of disable the chart window, to fully activate add this line as a constructor: SSudoku s = new SSudoku(false,true, oldscores,thisLock);
         private static bool chartwindow = false;
 
+        //Int array to save the original input board
         static int[,] OriginalSudoku;
 
         private static void Main(string[] args)
@@ -21,11 +25,11 @@ namespace Sudoku
 
             Console.WriteLine("Please input a Sudoku.");
 
-            //Read in the board, also make a fixed copie for utilities
+            //Read in the board with spaces or without, whatever suits you
             int N = readBoard();
             Console.Clear();
 
-            //Queue for the chart
+            //Queue for the chart window
             oldscores = new Queue<int>(100);
 
             //Start a new thread for the chart window
@@ -37,7 +41,7 @@ namespace Sudoku
             }
 
 
-            
+            //Start a new thread for solving a sudoku
             System.Threading.Thread t = new System.Threading.Thread(() => solve(N,1));
             t.Start();
             //System.Threading.Thread t2 = new System.Threading.Thread(() => solve(N, 2));
@@ -47,7 +51,7 @@ namespace Sudoku
             //System.Threading.Thread t4 = new System.Threading.Thread(() => solve(N,4));
            // t4.Start();
 
-
+            //While the sudoku is searching keep the main thread sleeping
             while (t.IsAlive
                 //&& t2.IsAlive && t3.IsAlive && t4.IsAlive
                 ) {
@@ -67,6 +71,7 @@ namespace Sudoku
             Console.ReadLine();
         }
 
+        //Function to print out some lines to make sure the program is searching
         public static void loading()
         {
             Console.Clear();
@@ -88,26 +93,23 @@ namespace Sudoku
                     Console.WriteLine("Cracking the sudoku...");
                     break;
             }
-
-
-
-
-
         }
 
+        //Makes a new SSudoku object and runs the solve algoritm with local search
         private static void solve(int N, int i)
         {
+            //Keep track of time with a stopwatch
             Stopwatch sw = new Stopwatch();
             sw.Start();
             SSudoku s = new SSudoku();
+
+            //Initialize the class with the original board and size
             s.init(OriginalSudoku, N);
-
-           
-
+            //Actually solve the sudoku
             s.solve(i);
-
             sw.Stop();
 
+            //Print the time it took and the board
             Console.WriteLine("Solved in: " + sw.Elapsed.TotalSeconds + "s!");
             s.print();
 
@@ -121,6 +123,7 @@ namespace Sudoku
 
         private static int readBoard()
         {
+            //Read the board from input, if there are spaces go to else
             string[] input = Console.ReadLine().Split();
             int N = input.Length;
 
