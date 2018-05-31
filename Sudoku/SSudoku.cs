@@ -4,11 +4,13 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Diagnostics;
 namespace Sudoku
 {
     class SSudoku
     {
+
+
         //Sudoku size
         private int N = 9;
 
@@ -21,9 +23,9 @@ namespace Sudoku
         private bool chartwindow;
 
         //Local copy of the board we are working on
-        int[,] board;
+        int[][] board;
         //Local copy of the numbers that are fixed for easy lookup
-        int[,] fixedboard;
+        int[][] fixedboard;
         //The queue for updating the chart window (reference)
         Queue<int> oldscores;
         //The lock for the chart window (reference)
@@ -44,22 +46,25 @@ namespace Sudoku
             N = n;
             B = (int)Math.Sqrt(N);
 
-            board = new int[N, N];
-            fixedboard = new int[N, N];
+            board = new int[N][];
+            fixedboard = new int[N][ ];
 
             for (int i = 0; i < N; i++)
             {
+                    board[i] = new int[N];
+                    fixedboard[i] = new int[N];
                 for (int j = 0; j < N; j++)
                 {
-                    board[i, j] = b[i, j];
-                    fixedboard[i, j] = b[i, j];
+
+                    board[i][ j] = b[i,j];
+                    fixedboard[i][ j] = b[i, j];
                 }
             }
 
         }
 
         //Method for starting the solve
-        public void solve(int rs)
+        public void solve(int rs,int ra)
         {
 
             //Fill in the remaining numbers randomly for each block
@@ -71,12 +76,15 @@ namespace Sudoku
 
             //To keep track of the iterations
             int it = 0;
+            int iterations = 0;
             //To keep track of whether the score changes
             int sameScore = 0;
-
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             //While we havent solved the sudoku
             while (score != 0)
             {
+                iterations++;
                 it++;
                 //Make the best swap we can and later check if we have a better score
                 int oldscore = score;
@@ -93,6 +101,14 @@ namespace Sudoku
                     }
                 }
 
+               /* 
+                if(sw.Elapsed.TotalSeconds > 1) {
+                    sw.Reset();
+                    sw.Start();
+                    Console.WriteLine("iterations: " + iterations);
+                    iterations = 0;
+                }
+                */
                 //Keep track if the score has changed
                 if (score == oldscore)
                     sameScore++;
@@ -100,23 +116,17 @@ namespace Sudoku
                     sameScore = 0;
 
                 //If the score has stayed the same for too long go random
-                if (sameScore > 36)
+                if (sameScore > 20)
                 {
                     sameScore = 0;
-                    int t = 20;
-                    if (it > 2000)
-                    {
-                        it = 0;
-                        t = 500;
-                    }
+                    int t = ra;
                     //Apply the neighbour operation a certain amout of times
                     walkRandomly( t, ref random);
                     //Recalculate the score
                     score = Evaluation();
                 }
             }
-
-
+           
 
         }
 
@@ -145,7 +155,7 @@ namespace Sudoku
                 int xi = xb + i / 3;
                 int yi = yb + i % 3;
                 //Only continue if it is not a fixed square
-                if (!(fixedboard[xi, yi] == 0))
+                if (!(fixedboard[xi][ yi] == 0))
                     continue;
 
                
@@ -156,115 +166,89 @@ namespace Sudoku
                     int yj = yb + j % 3;
                     
                     //Only continue if it is viable
-                    if (!(fixedboard[xj, yj] == 0))
+                    if (!(fixedboard[xj][ yj] == 0))
                         continue;
 
-                    int n1 = board[xi, yi];
-                    int n2 = board[xj, yj];
-                  
+                    int n1 = board[xi][yi];
+                    int n2 = board[xj][yj];
+
+                    board[xi][ yi] = 0;
+                    board[xj][ yj] = 0;
 
                     int differenceInScore = 0;
 
-                    //Check if a row already has the number double if so the score stays the same, else the score is incremented because we will be missing an number
+                    bool foundNumber1 = false;
+                    bool foundNumber2 = false;
+
+                    bool foundNumber3 = false;
+                    bool foundNumber4 = false;
+
+                    bool foundNumber5 = false;
+                    bool foundNumber6 = false;
+
+                    bool foundNumber7 = false;
+                    bool foundNumber8 = false;
+                    
+                   //We go over all the squares and check if the number is there, in the old rows/columns we substract a number by one and in the new ones
+                   //we add one to the number. We do have to make sure we dont check again so we use boolean values.
                     for (int k = 0; k < N; k++)
                     {
-                        if (board[xi, k] == n1 && k != yi)
+                        if (board[xi][ k] == n1 && !foundNumber1)
                         {
                             differenceInScore -= 1;
-                            break;
+                            foundNumber1 = true;
                         }
-                    }
-                    differenceInScore++;
 
-                    //The same for the column
-                    for (int k = 0; k < N; k++)
-                    {
-                        if (board[k, yi] == n1 && k != xi)
+                        if (board[k][ yi] == n1 && !foundNumber3)
                         {
                             differenceInScore -= 1;
-                            break;
+                            foundNumber3 = true;
                         }
-                    }
-                    differenceInScore++;
 
-                    //Now check the same for the the other number, if it already has that number in its row change the score, else do change
-                    for (int k = 0; k < N; k++)
-                    {
-                        if (board[xj, k] == n2 && k != yj)
+                        if (board[xj][ k] == n2 && !foundNumber4)
                         {
                             differenceInScore -= 1;
-                            break;
+                            foundNumber4 = true;
                         }
-                    }
-                    differenceInScore++;
 
-                    //Also check the column
-                    for (int k = 0; k < N; k++)
-                    {
-                        if (board[k, yj] == n2 && k != xj)
+                        if (board[k][ yj] == n2 && !foundNumber5)
                         {
                             differenceInScore -= 1;
-                            break;
+                            foundNumber5 = true;
                         }
-                    }
-                    differenceInScore++;
 
-                    //Now we make the actual swap
-                    swap( xi, yi, xj, yj);
-
-
-                    //This time we substract from the score unless the number is already in the row
-                    for (int k = 0; k < N; k++)
-                    {
-                        if (board[xi, k] == n2 && k != yi)
+                        if (board[xi][ k] == n2 && !foundNumber2)
                         {
                             differenceInScore += 1;
-                            break;
+                            foundNumber2 = true;
                         }
-                    }
-                    differenceInScore--;
-
-
-                    //Same for the column
-                    for (int k = 0; k < N; k++)
-                    {
-                        if (board[k, yi] == n2 && k != xi)
+                        if (board[k][ yi] == n2 && !foundNumber6)
                         {
                             differenceInScore += 1;
-                            break;
+                            foundNumber6 = true;
                         }
-                    }
-                    differenceInScore--;
 
-                    //And again the same for the other number's row
-                    for (int k = 0; k < N; k++)
-                    {
-                        if (board[xj, k] == n1 && k != yj)
+                        if (board[xj][ k] == n1 && !foundNumber7)
                         {
                             differenceInScore += 1;
-                            break;
+                            foundNumber7 = true;
                         }
-                    }
-                    differenceInScore--;
 
-                    //And of course the column
-                    for (int k = 0; k < N; k++)
-                    {
-                        if (board[k, yj] == n1 && k != xj)
+                        if (board[k][ yj] == n1 && !foundNumber8)
                         {
                             differenceInScore += 1;
-                            break;
+                            foundNumber8 = true;
                         }
+
+
                     }
-                    differenceInScore--;
 
-                    //Now swap back to the original, we only want to swap if it is the best possible swap
-                    swap( xi, yi, xj, yj);
-
+                    board[xi][ yi] = n1;
+                    board[xj][yj] = n2;
                     //Calculate the new score and check if it is better, in that case we save it
                     int sco2 = score + differenceInScore;
 
-                    if (sco2 <= bestscore)
+                    if (sco2 < bestscore)
                     {
                         xibest = xi;
                         yibest = yi;
@@ -272,6 +256,39 @@ namespace Sudoku
                         yjbest = yj;
                         bestscore = sco2;
                         foundimprov = true;
+                        //If we found the best possible improvement skip ahead
+                        if (differenceInScore < -3)
+                        {
+                            i = j = N + 1;
+
+                        }
+                    }
+                    //If the score is the same and we havent found a different one yet save it else accept it with a random chance
+                    if (sco2 == bestscore)
+                    {
+
+                        if (foundimprov == false)
+                        {
+                            xibest = xi;
+                            yibest = yi;
+                            xjbest = xj;
+                            yjbest = yj;
+                            bestscore = sco2;
+                            foundimprov = true;
+                        }else
+                        {
+                            int p = random.Next(0, 5);
+                            if (p % 1 == 0)
+                            {
+                                xibest = xi;
+                                yibest = yi;
+                                xjbest = xj;
+                                yjbest = yj;
+                                bestscore = sco2;
+                                foundimprov = true;
+                            }
+                        }
+
                     }
                 }
             }
@@ -331,7 +348,7 @@ namespace Sudoku
                 int yjb = yb + randomJ / B;
 
                 //If it is swappable
-                if (!(xib == xjb && yib == yjb) && fixedboard[xib, yib] == 0 && fixedboard[xjb, yjb] == 0)
+                if (!(xib == xjb && yib == yjb) && fixedboard[xib][ yib] == 0 && fixedboard[xjb][yjb] == 0)
                 {
                     if (stepbystep)
                     {
@@ -359,21 +376,21 @@ namespace Sudoku
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private  void swap( int xi, int yi, int xj, int yj)
         {
-            int t = board[xi, yi];
-            board[xi, yi] = board[xj, yj];
-            board[xj, yj] = t;
+            int t = board[xi][ yi];
+            board[xi][ yi] = board[xj][ yj];
+            board[xj][ yj] = t;
         }
 
         //Method to count the amount of missing numbers in a row, only used in the evaluation function
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private  int CountMissingNumbersC(int i, ref int[,] board)
+        private  int CountMissingNumbersC(int i, ref int[][] board)
         {
             int total = 0;
             int bits = 0;
             //Go over the row and add the numbers to a their coresponding offset in a bit string
             for (int k = 0; k < N; k++)
             {
-                bits |= 1 << board[k, i];
+                bits |= 1 << board[k][ i];
             }
             //Now count the bitstring bits that are 1
             for (int k = 1; k < N + 1; k++)
@@ -385,14 +402,14 @@ namespace Sudoku
 
         //Method to count the amount of missing numbers in a column, only used in the evaluation function
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int CountMissingNumbersR(int i, ref int[,] board)
+        private int CountMissingNumbersR(int i, ref int[][] board)
         {
             int total = 0;
             int bits = 0;
             //Go over the column and add the numbers to a their coresponding offset in a bit string
             for (int k = 0; k < N; k++)
             {
-                bits |= 1 << board[i, k];
+                bits |= 1 << board[i][ k];
             }
             //Now count the bitstring bits that are 1
             for (int k = 1; k < N + 1; k++)
@@ -434,7 +451,7 @@ namespace Sudoku
                         Console.ForegroundColor = ConsoleColor.Red;
                     if (markx2 == i && marky2 == j)
                         Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write(board[i, j] + " ");
+                    Console.Write(board[i][ j] + " ");
                     Console.ResetColor();
                     if (j == N - 1)
                         Console.Write("|");
@@ -470,7 +487,7 @@ namespace Sudoku
             {
                 for (int j = yb; j < yb + B; j++)
                 {
-                    if (n == board[i, j])
+                    if (n == board[i][j])
                     {
                         return true;
                     }
@@ -486,9 +503,9 @@ namespace Sudoku
             {
                 for (int j = yb; j < yb + B; j++)
                 {
-                    if (board[i, j] == 0)
+                    if (board[i][ j] == 0)
                     {
-                        board[i, j] = n;
+                        board[i][ j] = n;
                         return;
                     }
                 }
