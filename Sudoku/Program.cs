@@ -17,7 +17,7 @@ namespace Sudoku
         private static Queue<int> oldscores;
 
         //Enable of disable the chart window, to fully activate add this line as a constructor: SSudoku s = new SSudoku(false,true, oldscores,thisLock);
-        private static bool chartwindow = true;
+        private static bool chartwindow = false;
 
         //Int array to save the original input board
         private static int[,] OriginalSudoku;
@@ -27,9 +27,8 @@ namespace Sudoku
             Console.WriteLine("Please input a Sudoku.");
 
             //Read in the board with spaces or without, whatever suits you
-            // int N = readBoard();
-            int N = readBoardFromFile(0);
-            Console.Clear();
+            int N = readBoard();
+            //int N = readBoardFromFile(6);
 
             //Queue for the chart window
             oldscores = new Queue<int>(100);
@@ -42,37 +41,13 @@ namespace Sudoku
                 mythread.Start();
             }
 
-            //Read the board from console
-            readBoard();
 
-<<<<<<< HEAD
             //Solve the sudoku
-            SSudoku sudoku = new SSudoku(false,true,oldscores,thisLock);
+            SSudoku sudoku = new SSudoku();
             sudoku.init(OriginalSudoku, N);
-            sudoku.solve(1,20);
+            sudoku.solve(1,8);
             sudoku.print();
-=======
             
-            System.Threading.Thread t = new System.Threading.Thread(() => solve(N,1));
-            t.Start();
-            //System.Threading.Thread t2 = new System.Threading.Thread(() => solve(N, 2));
-            //t2.Start();
-           // System.Threading.Thread t3 = new System.Threading.Thread(() => solve(N, 3));
-           // t3.Start();
-            //System.Threading.Thread t4 = new System.Threading.Thread(() => solve(N,4));
-           // t4.Start();
-
-
-            /*while (t.IsAlive
-                //&& t2.IsAlive && t3.IsAlive && t4.IsAlive
-                ) {
-                loading();
-                Thread.Sleep(1000);
-
-
-            }*/
->>>>>>> origin/master
-
             //For multithreading
 
             /*
@@ -95,7 +70,6 @@ namespace Sudoku
         //Makes a new SSudoku object and runs the solve algoritm with local search 50 times for every sudoku for every random walk length, outputs the results to a text file
         private static void solve(int N, int i)
         {
-<<<<<<< HEAD
             //Keep track of time with a stopwatch
             Stopwatch sw = new Stopwatch();
             SSudoku s = new SSudoku();
@@ -139,34 +113,6 @@ namespace Sudoku
                 bestP = 0;
             }
 
-            //Print the time it took and the board
-            s.print();
-=======
-            for (int k = 1; k < 21; k++)
-            {
-                double temp = 0;
-                for (int j = 0; j < 50; j++)
-                {
-                    Stopwatch sw = new Stopwatch();
-                    sw.Start();
-                    SSudoku s = new SSudoku();      //Deze constructor is voor als er geen graph is.
-                                                    //SSudoku s = new SSudoku(false, true, oldscores, thisLock);        //Deze constructor is voor als er wel een graph is.
-                    s.init(OriginalSudoku, N);
-
-
-
-                    s.solve(i, 5*k);
-
-                    sw.Stop();
-
-                    //Console.WriteLine("Solved in: " + sw.Elapsed.TotalSeconds + "s!");
-                    //s.print();
-                    temp += sw.Elapsed.TotalSeconds;
-                }
-                temp = temp / 100;
-                Console.WriteLine(5*k + " " + temp);
-            }
->>>>>>> origin/master
         }
 
         //Debugging window to view the graph of the score
