@@ -62,19 +62,28 @@ namespace Sudoku
             }
 
         }
+<<<<<<< HEAD
 
         //Method for starting the solve
         public void solve(int rs,int ra)
+=======
+        public void solve(int rs, int walk)
+>>>>>>> origin/master
         {
 
             //Fill in the remaining numbers randomly for each block
             fillInBoard();
+<<<<<<< HEAD
 
             //Calculate the initial score
             int score = Evaluation();
             Random random = new Random(rs);
 
             //To keep track of the iterations
+=======
+            int score = Evaluation();
+            Random random = new Random((int)DateTime.Now.Ticks & 0x0000FFFF);
+>>>>>>> origin/master
             int it = 0;
             int iterations = 0;
             //To keep track of whether the score changes
@@ -119,8 +128,17 @@ namespace Sudoku
                 if (sameScore > 20)
                 {
                     sameScore = 0;
+<<<<<<< HEAD
                     int t = ra;
                     //Apply the neighbour operation a certain amout of times
+=======
+                    int t = walk;
+                    if (it > 2000)
+                    {
+                        it = 0;
+                        t = 500;
+                    }
+>>>>>>> origin/master
                     walkRandomly( t, ref random);
                     //Recalculate the score
                     score = Evaluation();
